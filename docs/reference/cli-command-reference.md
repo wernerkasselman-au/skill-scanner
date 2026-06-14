@@ -50,8 +50,7 @@ Command: `python -m skill_scanner.cli.cli --help`
 
 ```text
 usage: cli.py [-h] [--version]
-              {scan,scan-all,scan-repo,list-analyzers,validate-rules,generate-policy,configure-policy,interactive}
-              ...
+              {scan,scan-all,scan-repo,list-analyzers,validate-rules,generate-policy,configure-policy,interactive} ...
 
 Skill Scanner - Security scanner for agent skills packages
 
@@ -99,13 +98,14 @@ usage: cli.py scan [-h] [--format {summary,json,markdown,table,sarif,html}]
                    [--output-sarif OUTPUT_SARIF]
                    [--output-markdown OUTPUT_MARKDOWN]
                    [--output-html OUTPUT_HTML] [--output-table OUTPUT_TABLE]
-                   [--detailed] [--no-render-markdown] [--compact] [--verbose]
-                   [--fail-on-findings] [--fail-on-severity LEVEL]
-                   [--use-behavioral] [--use-llm] [--use-virustotal]
-                   [--vt-api-key VT_API_KEY] [--vt-upload-files]
-                   [--use-aidefense] [--aidefense-api-key AIDEFENSE_API_KEY]
+                   [--detailed] [--render-markdown | --no-render-markdown]
+                   [--compact] [--verbose] [--fail-on-findings]
+                   [--fail-on-severity LEVEL] [--use-behavioral] [--use-llm]
+                   [--use-virustotal] [--vt-api-key VT_API_KEY]
+                   [--vt-upload-files] [--use-aidefense]
+                   [--aidefense-api-key AIDEFENSE_API_KEY]
                    [--aidefense-api-url AIDEFENSE_API_URL]
-                   [--llm-provider {anthropic,openai}]
+                   [--llm-provider {anthropic,openai,openai-compatible}]
                    [--llm-consensus-runs N] [--llm-max-tokens N]
                    [--use-trigger] [--enable-meta] [--policy PRESET_OR_PATH]
                    [--lenient] [--skill-file FILENAME] [--custom-rules PATH]
@@ -123,8 +123,7 @@ options:
                         multiple times to produce several reports in one run,
                         e.g. --format markdown --format sarif. Use 'sarif' for
                         GitHub Code Scanning, 'html' for interactive report.
-  --output OUTPUT, -o OUTPUT
-                        Default output file path (overridden by --output-<fmt>
+  --output, -o OUTPUT   Default output file path (overridden by --output-<fmt>
                         for a specific format)
   --output-json OUTPUT_JSON
                         Write JSON report to this file
@@ -137,6 +136,8 @@ options:
   --output-table OUTPUT_TABLE
                         Write Table report to this file
   --detailed            Include detailed findings (Markdown output only)
+  --render-markdown     With --format markdown: render markdown even when
+                        stdout is not detected as a TTY.
   --no-render-markdown  With --format markdown to terminal: print raw markdown
                         instead of rendering (for pipe/copy).
   --compact             Compact JSON output
@@ -158,8 +159,9 @@ options:
                         AI Defense API key (or set AI_DEFENSE_API_KEY)
   --aidefense-api-url AIDEFENSE_API_URL
                         AI Defense API URL (optional, defaults to US region)
-  --llm-provider {anthropic,openai}
-                        LLM provider
+  --llm-provider {anthropic,openai,openai-compatible}
+                        LLM provider shortcut or explicit OpenAI-compatible
+                        override
   --llm-consensus-runs N
                         Run LLM analysis N times and keep only findings with
                         majority agreement (reduces false positives, increases
@@ -207,14 +209,15 @@ usage: cli.py scan-all [-h] [--recursive] [--check-overlap]
                        [--output-markdown OUTPUT_MARKDOWN]
                        [--output-html OUTPUT_HTML]
                        [--output-table OUTPUT_TABLE] [--detailed]
-                       [--no-render-markdown] [--compact] [--verbose]
-                       [--fail-on-findings] [--fail-on-severity LEVEL]
-                       [--use-behavioral] [--use-llm] [--use-virustotal]
+                       [--render-markdown | --no-render-markdown] [--compact]
+                       [--verbose] [--fail-on-findings]
+                       [--fail-on-severity LEVEL] [--use-behavioral]
+                       [--use-llm] [--use-virustotal]
                        [--vt-api-key VT_API_KEY] [--vt-upload-files]
                        [--use-aidefense]
                        [--aidefense-api-key AIDEFENSE_API_KEY]
                        [--aidefense-api-url AIDEFENSE_API_URL]
-                       [--llm-provider {anthropic,openai}]
+                       [--llm-provider {anthropic,openai,openai-compatible}]
                        [--llm-consensus-runs N] [--llm-max-tokens N]
                        [--use-trigger] [--enable-meta]
                        [--policy PRESET_OR_PATH] [--lenient]
@@ -235,8 +238,7 @@ options:
                         multiple times to produce several reports in one run,
                         e.g. --format markdown --format sarif. Use 'sarif' for
                         GitHub Code Scanning, 'html' for interactive report.
-  --output OUTPUT, -o OUTPUT
-                        Default output file path (overridden by --output-<fmt>
+  --output, -o OUTPUT   Default output file path (overridden by --output-<fmt>
                         for a specific format)
   --output-json OUTPUT_JSON
                         Write JSON report to this file
@@ -249,6 +251,8 @@ options:
   --output-table OUTPUT_TABLE
                         Write Table report to this file
   --detailed            Include detailed findings (Markdown output only)
+  --render-markdown     With --format markdown: render markdown even when
+                        stdout is not detected as a TTY.
   --no-render-markdown  With --format markdown to terminal: print raw markdown
                         instead of rendering (for pipe/copy).
   --compact             Compact JSON output
@@ -270,8 +274,9 @@ options:
                         AI Defense API key (or set AI_DEFENSE_API_KEY)
   --aidefense-api-url AIDEFENSE_API_URL
                         AI Defense API URL (optional, defaults to US region)
-  --llm-provider {anthropic,openai}
-                        LLM provider
+  --llm-provider {anthropic,openai,openai-compatible}
+                        LLM provider shortcut or explicit OpenAI-compatible
+                        override
   --llm-consensus-runs N
                         Run LLM analysis N times and keep only findings with
                         majority agreement (reduces false positives, increases
@@ -320,14 +325,15 @@ usage: cli.py scan-repo [-h] [--recursive | --no-recursive | -r]
                         [--output-markdown OUTPUT_MARKDOWN]
                         [--output-html OUTPUT_HTML]
                         [--output-table OUTPUT_TABLE] [--detailed]
-                        [--no-render-markdown] [--compact] [--verbose]
-                        [--fail-on-findings] [--fail-on-severity LEVEL]
-                        [--use-behavioral] [--use-llm] [--use-virustotal]
+                        [--render-markdown | --no-render-markdown] [--compact]
+                        [--verbose] [--fail-on-findings]
+                        [--fail-on-severity LEVEL] [--use-behavioral]
+                        [--use-llm] [--use-virustotal]
                         [--vt-api-key VT_API_KEY] [--vt-upload-files]
                         [--use-aidefense]
                         [--aidefense-api-key AIDEFENSE_API_KEY]
                         [--aidefense-api-url AIDEFENSE_API_URL]
-                        [--llm-provider {anthropic,openai}]
+                        [--llm-provider {anthropic,openai,openai-compatible}]
                         [--llm-consensus-runs N] [--llm-max-tokens N]
                         [--use-trigger] [--enable-meta]
                         [--policy PRESET_OR_PATH] [--lenient]
@@ -351,8 +357,7 @@ options:
                         multiple times to produce several reports in one run,
                         e.g. --format markdown --format sarif. Use 'sarif' for
                         GitHub Code Scanning, 'html' for interactive report.
-  --output OUTPUT, -o OUTPUT
-                        Default output file path (overridden by --output-<fmt>
+  --output, -o OUTPUT   Default output file path (overridden by --output-<fmt>
                         for a specific format)
   --output-json OUTPUT_JSON
                         Write JSON report to this file
@@ -365,6 +370,8 @@ options:
   --output-table OUTPUT_TABLE
                         Write Table report to this file
   --detailed            Include detailed findings (Markdown output only)
+  --render-markdown     With --format markdown: render markdown even when
+                        stdout is not detected as a TTY.
   --no-render-markdown  With --format markdown to terminal: print raw markdown
                         instead of rendering (for pipe/copy).
   --compact             Compact JSON output
@@ -386,8 +393,9 @@ options:
                         AI Defense API key (or set AI_DEFENSE_API_KEY)
   --aidefense-api-url AIDEFENSE_API_URL
                         AI Defense API URL (optional, defaults to US region)
-  --llm-provider {anthropic,openai}
-                        LLM provider
+  --llm-provider {anthropic,openai,openai-compatible}
+                        LLM provider shortcut or explicit OpenAI-compatible
+                        override
   --llm-consensus-runs N
                         Run LLM analysis N times and keep only findings with
                         majority agreement (reduces false positives, increases
@@ -452,8 +460,7 @@ usage: cli.py generate-policy [-h] [--output OUTPUT]
 
 options:
   -h, --help            show this help message and exit
-  --output OUTPUT, -o OUTPUT
-                        Output file path
+  --output, -o OUTPUT   Output file path
   --preset {strict,balanced,permissive}
                         Base preset
 ```
@@ -471,11 +478,9 @@ Command: `python -m skill_scanner.cli.cli configure-policy --help`
 usage: cli.py configure-policy [-h] [--output OUTPUT] [--input INPUT]
 
 options:
-  -h, --help            show this help message and exit
-  --output OUTPUT, -o OUTPUT
-                        Output file path
-  --input INPUT, -i INPUT
-                        Load existing policy YAML for editing
+  -h, --help           show this help message and exit
+  --output, -o OUTPUT  Output file path
+  --input, -i INPUT    Load existing policy YAML for editing
 ```
 
 </details>
